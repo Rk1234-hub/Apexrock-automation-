@@ -1,0 +1,6 @@
+{
+  "name": "ApexRock Automation Workstation",
+  "description": "Unified robotics and telemetry workstation featuring ArduinoDroid C++ Studio, ESP8266/ESP32 Car Controller with 15cm Radar E-Stop, Dabble Protocol Gamepad with live phone sensors, and 60 FPS LTTB Serial Telemetry Plotter.",
+  "requestFramePermissions": ["camera", "microphone", "accelerometer", "gyroscope"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
