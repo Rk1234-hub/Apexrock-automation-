@@ -7,18 +7,20 @@ import React, { useState, useEffect } from 'react';
 import { DashboardMode, DASHBOARD_MODES } from '../types/apex';
 import { hardwareAudio } from '../services/audioSynthesizer';
 import { hardwareBridge } from '../services/serialConnection';
-import { Cpu, Volume2, VolumeX, Code2, Radio } from 'lucide-react';
+import { Cpu, Volume2, VolumeX, Code2, Radio, Github } from 'lucide-react';
 
 interface HeaderNavProps {
   currentMode: DashboardMode;
   onSelectMode: (mode: DashboardMode) => void;
   onOpenKotlinModal: () => void;
+  onOpenApkModal: () => void;
 }
 
 export const HeaderNav: React.FC<HeaderNavProps> = ({
   currentMode,
   onSelectMode,
-  onOpenKotlinModal
+  onOpenKotlinModal,
+  onOpenApkModal
 }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [connectionType, setConnectionType] = useState<string>('SIMULATED_ESP32');
@@ -83,8 +85,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           })}
         </nav>
 
-        {/* Zone 3: Connection & Kotlin Source Action */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Zone 3: Connection & Action Buttons */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {isBraking && (
             <div className="hidden sm:flex items-center gap-1.5 text-xs text-white bg-neutral-900 px-2 py-1 rounded font-mono font-bold animate-pulse border border-neutral-700">
               <span>●</span>
@@ -112,10 +114,24 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               hardwareAudio.playClick();
               onOpenKotlinModal();
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-colors whitespace-nowrap"
+            title="View Android 17 Kotlin Jetpack Compose code"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-colors whitespace-nowrap"
           >
             <Code2 className="w-3.5 h-3.5 text-white" />
-            <span>Android 17 Kotlin</span>
+            <span>Android Code</span>
+          </button>
+
+          {/* Prominent APK & GitHub Publish Button */}
+          <button
+            onClick={() => {
+              hardwareAudio.playClick(1100);
+              onOpenApkModal();
+            }}
+            title="Download APK and publish to GitHub"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-black bg-white hover:bg-neutral-200 rounded-lg transition-colors whitespace-nowrap shadow-sm"
+          >
+            <Github className="w-4 h-4 text-black" />
+            <span>Publish APK</span>
           </button>
         </div>
       </div>

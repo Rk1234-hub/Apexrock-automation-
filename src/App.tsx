@@ -11,13 +11,15 @@ import { EspCarControlView } from './components/EspCarControlView';
 import { DabbleProtocolView } from './components/DabbleProtocolView';
 import { SerialMonitorView } from './components/SerialMonitorView';
 import { KotlinCodeModal } from './components/KotlinCodeModal';
+import { ApkPublisherModal } from './components/ApkPublisherModal';
 import { hardwareBridge } from './services/serialConnection';
 import { hardwareAudio } from './services/audioSynthesizer';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Github } from 'lucide-react';
 
 export default function App() {
   const [currentMode, setCurrentMode] = useState<DashboardMode>(DashboardMode.ARDUINO_DROID);
   const [isKotlinModalOpen, setIsKotlinModalOpen] = useState<boolean>(false);
+  const [isApkModalOpen, setIsApkModalOpen] = useState<boolean>(false);
   const [telemetry, setTelemetry] = useState<{
     radar: number;
     pwm: number;
@@ -54,6 +56,7 @@ export default function App() {
         currentMode={currentMode}
         onSelectMode={(mode) => setCurrentMode(mode)}
         onOpenKotlinModal={() => setIsKotlinModalOpen(true)}
+        onOpenApkModal={() => setIsApkModalOpen(true)}
       />
 
       {/* Main Workspace Stage */}
@@ -149,6 +152,12 @@ export default function App() {
       <KotlinCodeModal
         isOpen={isKotlinModalOpen}
         onClose={() => setIsKotlinModalOpen(false)}
+      />
+
+      {/* Android APK & GitHub Publishing Modal */}
+      <ApkPublisherModal
+        isOpen={isApkModalOpen}
+        onClose={() => setIsApkModalOpen(false)}
       />
     </div>
   );
