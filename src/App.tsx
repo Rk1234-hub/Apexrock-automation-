@@ -14,7 +14,7 @@ import { KotlinCodeModal } from './components/KotlinCodeModal';
 import { ApkPublisherModal } from './components/ApkPublisherModal';
 import { hardwareBridge } from './services/serialConnection';
 import { hardwareAudio } from './services/audioSynthesizer';
-import { BookOpen, Github } from 'lucide-react';
+import { BookOpen, Github, Download } from 'lucide-react';
 
 export default function App() {
   const [currentMode, setCurrentMode] = useState<DashboardMode>(DashboardMode.ARDUINO_DROID);
@@ -61,6 +61,68 @@ export default function App() {
 
       {/* Main Workspace Stage */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 flex flex-col">
+        {/* Quick APK Download Callout Banner */}
+        <div className="mb-4 p-3 bg-neutral-950 border border-neutral-800 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-white text-black font-bold flex items-center justify-center shrink-0">
+              <Download className="w-4 h-4 text-black" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-white flex items-center gap-2">
+                <span>ApexRock Automation APK Ready</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-700 text-neutral-300">
+                  v1.0.0 · Android 17 / API 37+
+                </span>
+              </div>
+              <p className="text-[11px] text-neutral-400 font-mono mt-0.5">
+                Save the Android APK installer package directly to your phone or tablet.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <a
+              href="/download/ApexRock-Automation-v1.0.0.apk"
+              download="ApexRock-Automation-v1.0.0.apk"
+              onClick={async (e) => {
+                hardwareAudio.playClick(1100);
+                try {
+                  const res = await fetch('/download/ApexRock-Automation-v1.0.0.apk');
+                  if (res.ok) {
+                    e.preventDefault();
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'ApexRock-Automation-v1.0.0.apk';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  }
+                } catch {
+                  // Fall back to standard anchor download
+                }
+              }}
+              className="px-4 py-1.5 bg-white hover:bg-neutral-200 text-black rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5 text-black" />
+              <span>Download APK</span>
+            </a>
+
+            <button
+              onClick={() => {
+                hardwareAudio.playClick(1000);
+                setIsApkModalOpen(true);
+              }}
+              className="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg text-xs font-semibold border border-neutral-700 flex items-center gap-1.5 transition-colors"
+            >
+              <Github className="w-3.5 h-3.5 text-white" />
+              <span>GitHub Publish Hub</span>
+            </button>
+          </div>
+        </div>
+
         {/* Module Sub-Header & Mode Navigation Tabs */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-3 border-b border-neutral-800">
           <div>

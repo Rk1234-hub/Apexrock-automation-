@@ -103,24 +103,32 @@ export const ApkPublisherModal: React.FC<ApkPublisherModalProps> = ({ isOpen, on
 
   if (!isOpen) return null;
 
-  const handleDownloadApk = () => {
+  const [isDownloadingApk, setIsDownloadingApk] = useState(false);
+  const [apkDownloadSuccess, setApkDownloadSuccess] = useState(false);
+
+  const handleDownloadApk = async () => {
     hardwareAudio.playClick(1100);
-    // Package a valid Android APK format container with Android manifest and DEX payload
-    const apkHeader = new Uint8Array([
-      0x50, 0x4b, 0x03, 0x04, // ZIP / APK local file header
-      0x14, 0x00, 0x00, 0x00,
-      0x08, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00
-    ]);
-    const blob = new Blob([apkHeader, 'ApexRock-Automation-v1.0.0-Release-APK'], {
-      type: 'application/vnd.android.package-archive'
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'ApexRock-Automation-v1.0.0.apk';
-    a.click();
-    URL.revokeObjectURL(url);
+    setIsDownloadingApk(true);
+    setApkDownloadSuccess(false);
+    try {
+      const response = await fetch('/download/ApexRock-Automation-v1.0.0.apk');
+      if (!response.ok) throw new Error('Download failed');
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ApexRock-Automation-v1.0.0.apk';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setApkDownloadSuccess(true);
+      setTimeout(() => setApkDownloadSuccess(false), 3000);
+    } catch {
+      window.location.href = '/download/ApexRock-Automation-v1.0.0.apk';
+    } finally {
+      setIsDownloadingApk(false);
+    }
   };
 
   const handleDownloadFullProjectZip = async () => {
@@ -129,50 +137,25 @@ export const ApkPublisherModal: React.FC<ApkPublisherModalProps> = ({ isOpen, on
     setZipSuccess(false);
 
     try {
-      const zip = new JSZip();
-
-      // Root README & GitHub Workflow
-      zip.file('README.md', `# ApexRock Automation\nTarget: Android 17 (API 37)+ / Jetpack Compose\nSee .github/workflows/build-apk.yml for automated GitHub APK builds.`);
-      zip.file('.github/workflows/build-apk.yml', GITHUB_WORKFLOW_YML);
-
-      // Android folder structure
-      const androidFolder = zip.folder('android');
-      if (androidFolder) {
-        androidFolder.file('settings.gradle.kts', `rootProject.name = "ApexRockAutomation"\ninclude(":app")`);
-        androidFolder.file('build.gradle.kts', `plugins {\n    id("com.android.application") version "8.5.2" apply false\n    id("org.jetbrains.kotlin.android") version "2.0.0" apply false\n    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0" apply false\n}`);
-        androidFolder.file('gradle.properties', `org.gradle.jvmargs=-Xmx2048m\nandroid.useAndroidX=true\nandroid.nonTransitiveRClass=true`);
-
-        const appFolder = androidFolder.folder('app');
-        if (appFolder) {
-          appFolder.file('build.gradle.kts', `plugins {\n    id("com.android.application")\n    id("org.jetbrains.kotlin.android")\n    id("org.jetbrains.kotlin.plugin.compose")\n}\n\nandroid {\n    namespace = "com.apexrock.automation"\n    compileSdk = 35\n    defaultConfig {\n        applicationId = "com.apexrock.automation"\n        minSdk = 26\n        targetSdk = 35\n        versionCode = 1\n        versionName = "1.0.0"\n    }\n    buildFeatures { compose = true }\n}\ndependencies {\n    implementation("androidx.activity:activity-compose:1.9.1")\n    implementation(platform("androidx.compose:compose-bom:2024.06.00"))\n    implementation("androidx.compose.material3:material3")\n}`);
-
-          const srcMain = appFolder.folder('src')?.folder('main');
-          if (srcMain) {
-            srcMain.file('AndroidManifest.xml', `<?xml version="1.0" encoding="utf-8"?>\n<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />\n    <application android:label="ApexRock Automation">\n        <activity android:name=".MainActivity" android:exported="true">\n            <intent-filter>\n                <action android:name="android.intent.action.MAIN" />\n                <category android:name="android.intent.category.LAUNCHER" />\n            </intent-filter>\n        </activity>\n    </application>\n</manifest>`);
-
-            const kotlinFolder = srcMain.folder('java')?.folder('com')?.folder('apexrock')?.folder('automation');
-            if (kotlinFolder) {
-              const mainActivityCode = await fetch('/android/app/src/main/java/com/apexrock/automation/MainActivity.kt')
-                .then(r => r.text())
-                .catch(() => '// MainActivity.kt');
-              kotlinFolder.file('MainActivity.kt', mainActivityCode);
-            }
-          }
-        }
+      const response = await fetch('/download/ApexRock-Android-Studio-Project.zip');
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ApexRock-Android-Studio-Project.zip';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        window.location.href = '/download/ApexRock-Android-Studio-Project.zip';
       }
-
-      const content = await zip.generateAsync({ type: 'blob' });
-      const url = URL.createObjectURL(content);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'ApexRock-Android-Studio-Project.zip';
-      a.click();
-      URL.revokeObjectURL(url);
-
-      setIsZipping(false);
       setZipSuccess(true);
       setTimeout(() => setZipSuccess(false), 3000);
     } catch {
+      window.location.href = '/download/ApexRock-Android-Studio-Project.zip';
+    } finally {
       setIsZipping(false);
     }
   };
@@ -302,18 +285,28 @@ export const ApkPublisherModal: React.FC<ApkPublisherModalProps> = ({ isOpen, on
                   </p>
                 </div>
 
-                <a
-                  href="/download/ApexRock-Automation-v1.0.0.apk"
-                  download="ApexRock-Automation-v1.0.0.apk"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDownloadApk();
-                  }}
-                  className="w-full py-2.5 px-4 bg-white hover:bg-neutral-200 text-black font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm text-center cursor-pointer"
+                <button
+                  onClick={handleDownloadApk}
+                  disabled={isDownloadingApk}
+                  className="w-full py-2.5 px-4 bg-white hover:bg-neutral-200 text-black font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm text-center cursor-pointer disabled:opacity-50"
                 >
-                  <Download className="w-4 h-4 text-black" />
-                  <span>Download .APK Package</span>
-                </a>
+                  {apkDownloadSuccess ? (
+                    <>
+                      <Check className="w-4 h-4 text-black" />
+                      <span>APK Package Downloaded!</span>
+                    </>
+                  ) : isDownloadingApk ? (
+                    <>
+                      <Download className="w-4 h-4 text-black animate-bounce" />
+                      <span>Preparing Download...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 text-black" />
+                      <span>Download .APK Package</span>
+                    </>
+                  )}
+                </button>
               </div>
 
               {/* Card 2: Full Android Studio Project ZIP */}
@@ -330,18 +323,28 @@ export const ApkPublisherModal: React.FC<ApkPublisherModalProps> = ({ isOpen, on
                   </p>
                 </div>
 
-                <a
-                  href="/download/ApexRock-Android-Studio-Project.zip"
-                  download="ApexRock-Android-Studio-Project.zip"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDownloadFullProjectZip();
-                  }}
-                  className="w-full py-2.5 px-4 bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs rounded-lg border border-neutral-700 transition-colors flex items-center justify-center gap-2 text-center cursor-pointer"
+                <button
+                  onClick={handleDownloadFullProjectZip}
+                  disabled={isZipping}
+                  className="w-full py-2.5 px-4 bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs rounded-lg border border-neutral-700 transition-colors flex items-center justify-center gap-2 text-center cursor-pointer disabled:opacity-50"
                 >
-                  <Download className="w-4 h-4 text-white" />
-                  <span>{isZipping ? 'Compressing Project...' : 'Download Project .ZIP'}</span>
-                </a>
+                  {zipSuccess ? (
+                    <>
+                      <Check className="w-4 h-4 text-white" />
+                      <span>Project .ZIP Downloaded!</span>
+                    </>
+                  ) : isZipping ? (
+                    <>
+                      <Download className="w-4 h-4 text-white animate-bounce" />
+                      <span>Downloading Project .ZIP...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 text-white" />
+                      <span>Download Project .ZIP</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
 
