@@ -302,13 +302,18 @@ export const ApkPublisherModal: React.FC<ApkPublisherModalProps> = ({ isOpen, on
                   </p>
                 </div>
 
-                <button
-                  onClick={handleDownloadApk}
-                  className="w-full py-2.5 px-4 bg-white hover:bg-neutral-200 text-black font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
+                <a
+                  href="/download/ApexRock-Automation-v1.0.0.apk"
+                  download="ApexRock-Automation-v1.0.0.apk"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDownloadApk();
+                  }}
+                  className="w-full py-2.5 px-4 bg-white hover:bg-neutral-200 text-black font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm text-center cursor-pointer"
                 >
                   <Download className="w-4 h-4 text-black" />
                   <span>Download .APK Package</span>
-                </button>
+                </a>
               </div>
 
               {/* Card 2: Full Android Studio Project ZIP */}
@@ -325,26 +330,40 @@ export const ApkPublisherModal: React.FC<ApkPublisherModalProps> = ({ isOpen, on
                   </p>
                 </div>
 
-                <button
-                  onClick={handleDownloadFullProjectZip}
-                  disabled={isZipping}
-                  className="w-full py-2.5 px-4 bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs rounded-lg border border-neutral-700 transition-colors flex items-center justify-center gap-2"
+                <a
+                  href="/download/ApexRock-Android-Studio-Project.zip"
+                  download="ApexRock-Android-Studio-Project.zip"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDownloadFullProjectZip();
+                  }}
+                  className="w-full py-2.5 px-4 bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs rounded-lg border border-neutral-700 transition-colors flex items-center justify-center gap-2 text-center cursor-pointer"
                 >
-                  {isZipping ? (
-                    <span>Compressing Project...</span>
-                  ) : zipSuccess ? (
-                    <span className="flex items-center gap-1.5 text-white">
-                      <Check className="w-4 h-4 text-white" />
-                      <span>Project ZIP Downloaded!</span>
-                    </span>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4 text-white" />
-                      <span>Download Android Project .ZIP</span>
-                    </>
-                  )}
-                </button>
+                  <Download className="w-4 h-4 text-white" />
+                  <span>{isZipping ? 'Compressing Project...' : 'Download Project .ZIP'}</span>
+                </a>
               </div>
+            </div>
+
+            {/* Direct Kotlin Source Code Link */}
+            <div className="p-4 bg-neutral-950 border border-neutral-800 rounded-xl flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <FileCode className="w-5 h-5 text-white" />
+                <div>
+                  <div className="text-xs font-bold text-white">MainActivity.kt (Android 17 / API 37+)</div>
+                  <div className="text-[11px] text-neutral-400 font-mono">Raw Kotlin Jetpack Compose Source (20.9 KB)</div>
+                </div>
+              </div>
+
+              <a
+                href="/download/MainActivity.kt"
+                download="MainActivity.kt"
+                onClick={() => hardwareAudio.playClick(1000)}
+                className="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg text-xs font-semibold border border-neutral-700 flex items-center gap-1.5 transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download .kt</span>
+              </a>
             </div>
           </div>
         )}
