@@ -20,6 +20,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { hardwareAudio } from '../services/audioSynthesizer';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 
 interface ApkPublisherModalProps {
   isOpen: boolean;
@@ -95,16 +96,17 @@ git tag v1.0.0
 git push origin v1.0.0`;
 
 export const ApkPublisherModal: React.FC<ApkPublisherModalProps> = ({ isOpen, onClose }) => {
+  const { isInstallable, isInstalled, isIOS, isAndroid, install } = usePWAInstall();
   const [activeTab, setActiveTab] = useState<'DOWNLOAD' | 'GITHUB_ACTIONS' | 'GIT_SETUP'>('DOWNLOAD');
   const [isZipping, setIsZipping] = useState(false);
   const [zipSuccess, setZipSuccess] = useState(false);
   const [copiedWorkflow, setCopiedWorkflow] = useState(false);
   const [copiedGit, setCopiedGit] = useState(false);
-
-  if (!isOpen) return null;
-
   const [isDownloadingApk, setIsDownloadingApk] = useState(false);
   const [apkDownloadSuccess, setApkDownloadSuccess] = useState(false);
+  const [showAndroidInstallTip, setShowAndroidInstallTip] = useState(false);
+
+  if (!isOpen) return null;
 
   const handleDownloadApk = async () => {
     hardwareAudio.playClick(1100);
@@ -269,6 +271,63 @@ export const ApkPublisherModal: React.FC<ApkPublisherModalProps> = ({ isOpen, on
               </div>
             </div>
 
+            {/* Recommended 1-Click Native Android Install (WebAPK) */}
+            <div className="p-4 bg-white text-black rounded-xl space-y-3 shadow-lg">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
+                    <Smartphone className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-black uppercase tracking-wider">
+                      Option A: 1-Click Install Android App (Recommended)
+                    </h3>
+                    <p className="text-[11px] text-neutral-700">
+                      Installs directly into your Android app drawer · No parse errors · Full hardware access
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-black text-white">
+                  FASTEST
+                </span>
+              </div>
+              <p className="text-xs text-neutral-800 leading-relaxed">
+                If manual sideloading shows <em>"Parse Error"</em> on your phone, use this 1-click install. Android's official WebAPK service packages and signs the app directly onto your phone with hardware USB OTG, Bluetooth, and sensor capabilities.
+              </p>
+              {isInstalled ? (
+                <div className="py-2 px-3 bg-neutral-100 rounded-lg text-xs font-bold text-black flex items-center gap-2">
+                  <Check className="w-4 h-4 text-black" />
+                  <span>ApexRock is already installed as a standalone app!</span>
+                </div>
+              ) : (
+                <button
+                  onClick={async () => {
+                    hardwareAudio.playClick(1100);
+                    if (isInstallable) {
+                      await install();
+                    } else {
+                      setShowAndroidInstallTip(!showAndroidInstallTip);
+                    }
+                  }}
+                  className="w-full py-2.5 px-4 bg-black hover:bg-neutral-800 text-white font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                >
+                  <Smartphone className="w-4 h-4 text-white" />
+                  <span>{isInstallable ? 'Install Native App on this Device' : 'How to Install on Phone via Chrome'}</span>
+                </button>
+              )}
+              {showAndroidInstallTip && (
+                <div className="p-3 bg-neutral-100 rounded-lg text-xs text-neutral-900 space-y-1 font-mono">
+                  <div className="font-bold">Android Chrome Step-by-Step:</div>
+                  <ol className="list-decimal list-inside space-y-0.5 text-[11px] text-neutral-700">
+                    <li>Open this URL in Chrome on your phone</li>
+                    <li>Tap the three dots menu (⋮) in the top-right corner</li>
+                    <li>Select <strong>"Install app"</strong> (or "Add to Home screen")</li>
+                    <li>Tap <strong>Install</strong> — it appears in your phone's app list with native icon!</li>
+                  </ol>
+                </div>
+              )}
+            </div>
+
             {/* Direct Download Actions */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Card 1: APK Binary Download */}
@@ -278,10 +337,10 @@ export const ApkPublisherModal: React.FC<ApkPublisherModalProps> = ({ isOpen, on
                     <Smartphone className="w-5 h-5 text-black" />
                   </div>
                   <h3 className="text-sm font-bold text-white pt-1">
-                    Download APK Application
+                    Option B: Download APK Package
                   </h3>
                   <p className="text-xs text-neutral-400 leading-relaxed">
-                    Instantly download the standalone <code className="text-white">ApexRock-Automation-v1.0.0.apk</code> package for installation on any Android phone or tablet.
+                    Download <code className="text-white">ApexRock-Automation-v1.0.0.apk</code> directly. In Android Settings, ensure <em>Allow unknown apps from this source</em> is enabled.
                   </p>
                 </div>
 

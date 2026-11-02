@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { DashboardMode, DASHBOARD_MODES } from '../types/apex';
 import { hardwareAudio } from '../services/audioSynthesizer';
 import { hardwareBridge } from '../services/serialConnection';
+import { PWAInstallButton } from './PWAInstallButton';
 import { Cpu, Volume2, VolumeX, Code2, Radio, Github } from 'lucide-react';
 
 interface HeaderNavProps {
@@ -121,6 +122,9 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             <span>Android Code</span>
           </button>
 
+          {/* 1-Click Android App / PWA Install Button */}
+          <PWAInstallButton onOpenApkModal={onOpenApkModal} />
+
           {/* Prominent APK & GitHub Publish Button */}
           <button
             onClick={() => {
@@ -128,9 +132,9 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               onOpenApkModal();
             }}
             title="Download APK and publish to GitHub"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-black bg-white hover:bg-neutral-200 rounded-lg transition-colors whitespace-nowrap shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-neutral-300 hover:text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-colors whitespace-nowrap"
           >
-            <Github className="w-4 h-4 text-black" />
+            <Github className="w-4 h-4 text-white" />
             <span>Publish APK</span>
           </button>
         </div>

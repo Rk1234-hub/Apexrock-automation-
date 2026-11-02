@@ -14,6 +14,8 @@ import { KotlinCodeModal } from './components/KotlinCodeModal';
 import { ApkPublisherModal } from './components/ApkPublisherModal';
 import { hardwareBridge } from './services/serialConnection';
 import { hardwareAudio } from './services/audioSynthesizer';
+import { PWAInstallButton } from './components/PWAInstallButton';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { BookOpen, Github, Download } from 'lucide-react';
 
 export default function App() {
@@ -110,6 +112,8 @@ export default function App() {
               <span>Download APK</span>
             </a>
 
+            <PWAInstallButton onOpenApkModal={() => setIsApkModalOpen(true)} />
+
             <button
               onClick={() => {
                 hardwareAudio.playClick(1000);
@@ -118,7 +122,7 @@ export default function App() {
               className="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg text-xs font-semibold border border-neutral-700 flex items-center gap-1.5 transition-colors"
             >
               <Github className="w-3.5 h-3.5 text-white" />
-              <span>GitHub Publish Hub</span>
+              <span>APK & GitHub Hub</span>
             </button>
           </div>
         </div>
@@ -221,6 +225,9 @@ export default function App() {
         isOpen={isApkModalOpen}
         onClose={() => setIsApkModalOpen(false)}
       />
+
+      {/* Offline Status Toast Indicator */}
+      <OfflineIndicator />
     </div>
   );
 }
